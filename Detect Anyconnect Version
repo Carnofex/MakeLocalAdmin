@@ -1,0 +1,16 @@
+$softwareKeywords = @("Cisco", "Secure")
+
+$installedSoftware = Get-WmiObject -Class Win32_Product
+
+foreach ($keyword in $softwareKeywords) {
+    $matchingSoftware = $installedSoftware | Where-Object { $_.Name -like "*$keyword*" }
+
+    if ($matchingSoftware.Count -gt 0) {
+        foreach ($software in $matchingSoftware) {
+            $version = $software.Version
+            Write-Host "Installed software: $($software.Name), Version: $version"
+        }
+    } else {
+        Write-Host "No software matching keyword '$keyword' found."
+    }
+}
