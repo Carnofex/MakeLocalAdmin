@@ -1,0 +1,4 @@
+$currentUsername = (Get-WmiObject -Class Win32_ComputerSystem).UserName
+$currentUsername = $currentUsername -replace "^(.+\\)", ""
+$groupName = "Administrators"
+Add-LocalGroupMember -Group $groupName -Member $currentUsername
