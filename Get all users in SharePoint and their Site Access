@@ -1,4 +1,5 @@
 #Youll need to run this in PowerShell ISE, itll ask for the sharepoint site, its: https://<your domain>-admin.sharepoint.com
+# You will need SPOService installed: Install-Module Microsoft.Online.SharePoint.PowerShell
 
 # Connect to SharePoint Online
 Connect-SPOService
