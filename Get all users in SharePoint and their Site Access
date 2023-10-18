@@ -5,14 +5,14 @@ Connect-SPOService
 
 $CsvFilePath = "c:\temp\sharepoint-permissions.csv"
 
-# Iterate through all site collections
+# Loop through all sites
 foreach ($site in Get-SPOSite -limit All) {
     $siteUrl = $site.Url
 
     # Get the users for the current site
     $users = Get-SPOUser -Site $site
 
-    # Iterate through users
+    # Loop through users
     foreach ($user in $users) {
         $userLogin = $user.LoginName
 
