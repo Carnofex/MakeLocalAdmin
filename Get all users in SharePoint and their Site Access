@@ -4,7 +4,6 @@
 # Connect to SharePoint Online
 Connect-SPOService
 
-# Define the CSV file for results
 $CsvFilePath = "c:\temp\spo-output.csv"
 
 # Iterate through all site collections
@@ -32,7 +31,6 @@ foreach ($site in Get-SPOSite -limit All) {
     }
 }
 
-# Disconnect from SharePoint Online
 Disconnect-SPOService
 
 Write-Host "Permissions exported to $CsvFilePath"
