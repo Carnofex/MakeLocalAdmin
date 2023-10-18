@@ -1,0 +1,37 @@
+#Youll need to run this in PowerShell ISE, itll ask for the sharepoint site, its: https://<your domain>-admin.sharepoint.com
+
+# Connect to SharePoint Online
+Connect-SPOService
+
+# Define the CSV file for results
+$CsvFilePath = "c:\temp\spo-output.csv"
+
+# Iterate through all site collections
+foreach ($site in Get-SPOSite -limit All) {
+    $siteUrl = $site.Url
+
+    # Get the users for the current site
+    $users = Get-SPOUser -Site $site
+
+    # Iterate through users
+    foreach ($user in $users) {
+        $userLogin = $user.LoginName
+
+        # Check if the user has an active mailbox based on the LoginName format
+        if ($userLogin -match '@' -and $userLogin -notlike '*\*' -and $userLogin -notlike 'NT AUTHORITY*' -and $userLogin -notlike 'IUSR*' -and $userLogin -notlike 'NT SERVICE*') {
+            $data = [PSCustomObject]@{
+                "Site Url" = $site.Url
+                "User Login" = $userLogin
+                "Groups" = $user.Groups
+                "User Type" = $user.UserType
+            }
+
+            $data | Export-Csv -Append -NoTypeInformation -Path $CsvFilePath
+        }
+    }
+}
+
+# Disconnect from SharePoint Online
+Disconnect-SPOService
+
+Write-Host "Permissions exported to $CsvFilePath"
