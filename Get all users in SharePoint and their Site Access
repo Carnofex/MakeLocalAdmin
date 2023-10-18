@@ -3,7 +3,7 @@
 
 Connect-SPOService
 
-$CsvFilePath = "c:\temp\spo-output.csv"
+$CsvFilePath = "c:\temp\sharepoint-permissions.csv"
 
 # Iterate through all site collections
 foreach ($site in Get-SPOSite -limit All) {
