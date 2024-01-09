@@ -1,0 +1,56 @@
+Add-Type -AssemblyName System.Windows.Forms
+
+# Window and Header
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "E-N Computers System Message"
+$form.Size = New-Object System.Drawing.Size(450, 200)
+$form.TopMost = $false  # Set TopMost property to false
+
+# Reboot Dude
+$label = New-Object System.Windows.Forms.Label
+$label.Location = New-Object System.Drawing.Point(10, 10)
+$label.Size = New-Object System.Drawing.Size(410, 80)
+$label.Text = "Your workstation has had system or security updates installed and must be rebooted. Please save your work and restart your computer."
+
+# buttons
+$buttonCancel = New-Object System.Windows.Forms.Button
+$buttonCancel.Location = New-Object System.Drawing.Point(110, 100)
+$buttonCancel.Size = New-Object System.Drawing.Size(80, 30)
+$buttonCancel.Text = "Cancel"
+$buttonCancel.Add_Click({
+    Write-Host "User clicked Cancel. Update canceled. No action taken."
+    # kill the window 
+    $form.Close()
+})
+
+$buttonReboot = New-Object System.Windows.Forms.Button
+$buttonReboot.Location = New-Object System.Drawing.Point(240, 100)
+$buttonReboot.Size = New-Object System.Drawing.Size(80, 30)
+$buttonReboot.Text = "Reboot"
+$buttonReboot.BackColor = [System.Drawing.Color]::IndianRed  # Set reboot button color to red
+$buttonReboot.ForeColor = [System.Drawing.Color]::White  # Set text color to white
+$buttonReboot.Add_Click({
+    Write-Host "User clicked Reboot. Initiating reboot..."
+
+    # Attempt a regular reboot without -Force
+    $rebootResult = Restart-Computer -WhatIf
+
+    # Check if there were no prompts to save
+    if ($rebootResult -eq $null) {
+        Write-Host "No prompts to save. Continuing with the reboot..."
+        # Cancel Reboot if theres a save prompt
+    } else {
+        Write-Host "Prompts to Save detected. Reboot canceled. No action taken."
+    }
+})
+
+# Add controls to the form
+$form.Controls.Add($label)
+$form.Controls.Add($buttonCancel)
+$form.Controls.Add($buttonReboot)
+
+# Show the form
+$result = $form.ShowDialog()
+
+# Dispose of the form when done
+$form.Dispose()
