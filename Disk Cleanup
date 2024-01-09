@@ -1,0 +1,42 @@
+# Set execution policy to Bypass without prompting
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+
+# Install the PackageManagement module if not already installed
+if (-not (Get-Module -Name PackageManagement -ListAvailable)) {
+    Install-Module -Name PackageManagement -Force -Scope CurrentUser
+}
+
+# Uninstall SARemediation
+Get-Package -ProviderName "msi" *supportAssist Remediation* | Uninstall-Package -Force
+
+# Clean up AppData subfolders
+$foldersToClean = @(
+    "Local\Temp",
+    "Microsoft\Windows\Temporary Internet Files",
+    "Microsoft\Windows\Cookies"
+)
+
+$appDataPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::ApplicationData)
+
+foreach ($folder in $foldersToClean) {
+    $fullPath = Join-Path -Path $appDataPath -ChildPath $folder
+    if (Test-Path -Path $fullPath -PathType Container) {
+        Remove-Item -Path $fullPath -Force -Recurse
+    }
+}
+
+
+wevtutil.exe cl Application
+wevtutil.exe cl Security
+wevtutil.exe cl Setup
+wevtutil.exe cl System
+
+#Cut down on VSS
+vssadmin resize shadowstorage /on=c: /for=c: /maxsize=1GB
+
+# Compact the WinSxS folder
+Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
+
+# Perform a disk cleanup
+Start-Process cleanmgr.exe -ArgumentList "/sagerun:1"
+
