@@ -30,18 +30,44 @@ $buttonReboot.Text = "Reboot"
 $buttonReboot.BackColor = [System.Drawing.Color]::IndianRed  # Set reboot button color to red
 $buttonReboot.ForeColor = [System.Drawing.Color]::White  # Set text color to white
 $buttonReboot.Add_Click({
-    Write-Host "User clicked Reboot. Initiating reboot..."
+    Write-Host "User clicked Reboot. Prompting Confirmation..."
 
-    # Attempt a regular reboot without -Force
-    $rebootResult = Restart-Computer -WhatIf
+    # Create a new confirmation form
+    $confirmForm = New-Object System.Windows.Forms.Form
+    $confirmForm.Text = "Confirm Reboot"
+    $confirmForm.Size = New-Object System.Drawing.Size(300, 150)
 
-    # Check if there were no prompts to save
-    if ($rebootResult -eq $null) {
-        Write-Host "No prompts to save. Continuing with the reboot..."
-        # Cancel Reboot if theres a save prompt
-    } else {
-        Write-Host "Prompts to Save detected. Reboot canceled. No action taken."
-    }
+    # Confirmation message
+    $confirmLabel = New-Object System.Windows.Forms.Label
+    $confirmLabel.Location = New-Object System.Drawing.Point(10, 10)
+    $confirmLabel.Size = New-Object System.Drawing.Size(280, 40)
+    $confirmLabel.Text = "Are you sure you are ready to Restart? Click Yes to proceed, click No to cancel."
+    $confirmForm.Controls.Add($confirmLabel)
+
+    # Yes button
+    $yesButton = New-Object System.Windows.Forms.Button
+    $yesButton.Location = New-Object System.Drawing.Point(50, 60)
+    $yesButton.Size = New-Object System.Drawing.Size(75, 30)
+    $yesButton.Text = "Yes"
+    $yesButton.Add_Click({
+        Restart-Computer -Force
+        $confirmForm.Close()
+    })
+    $confirmForm.Controls.Add($yesButton)
+
+    # No button
+     $noButton = New-Object System.Windows.Forms.Button
+    $noButton.Location = New-Object System.Drawing.Point(150, 60)
+    $noButton.Size = New-Object System.Drawing.Size(75, 30)
+    $noButton.Text = "No"
+    $noButton.Add_Click({
+        $confirmForm.Close()
+        $form.Close() # This line will close the main form
+    })
+    $confirmForm.Controls.Add($noButton)
+
+    # Show the confirmation form
+    $confirmForm.ShowDialog()
 })
 
 # Add controls to the form
