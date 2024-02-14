@@ -1,3 +1,37 @@
+# Function to check if a reboot is pending
+function Test-RebootPending {
+    $rebootRequired = $false
+
+    # Check for pending reboot registry keys
+    $paths = @(
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired",
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending",
+        "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager",
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Pending"
+    )
+
+    foreach ($path in $paths) {
+        if (Test-Path $path) {
+            Write-Host "Reboot is pending due to path: $path"
+            $rebootRequired = $true
+            break
+        }
+    }
+
+    # Check for specific values if needed
+    # Example: Check if a PendingFileRenameOperations value exists
+    $key = Get-Item "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -ErrorAction SilentlyContinue
+    if ($null -ne $key.GetValue("PendingFileRenameOperations", $null)) {
+        Write-Host "Reboot is pending due to pending file rename operations."
+        $rebootRequired = $true
+    }
+
+    return $rebootRequired
+}
+
+# Use the function to check if a reboot is pending
+if (Test-RebootPending) {
+    # Only show the reboot prompt if a reboot is pending
 Add-Type -AssemblyName System.Windows.Forms
 
 # Window and Header
@@ -80,3 +114,7 @@ $result = $form.ShowDialog()
 
 # Dispose of the form when done
 $form.Dispose()
+    Write-Host "Prompting user for reboot."
+} else {
+    Write-Host "No reboot is necessary."
+}
