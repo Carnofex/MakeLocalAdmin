@@ -1,0 +1,82 @@
+Add-Type -AssemblyName System.Windows.Forms
+
+# Window and Header
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "E-N Computers System Message"
+$form.Size = New-Object System.Drawing.Size(450, 200)
+$form.TopMost = $false  # Set TopMost property to false
+
+# Reboot Dude
+$label = New-Object System.Windows.Forms.Label
+$label.Location = New-Object System.Drawing.Point(10, 10)
+$label.Size = New-Object System.Drawing.Size(410, 80)
+$label.Text = "Your workstation has had system or security updates installed and must be rebooted. Please save your work and restart your computer."
+
+# buttons
+$buttonCancel = New-Object System.Windows.Forms.Button
+$buttonCancel.Location = New-Object System.Drawing.Point(110, 100)
+$buttonCancel.Size = New-Object System.Drawing.Size(80, 30)
+$buttonCancel.Text = "Cancel"
+$buttonCancel.Add_Click({
+    Write-Host "User clicked Cancel. Update canceled. No action taken."
+    # kill the window 
+    $form.Close()
+})
+
+$buttonReboot = New-Object System.Windows.Forms.Button
+$buttonReboot.Location = New-Object System.Drawing.Point(240, 100)
+$buttonReboot.Size = New-Object System.Drawing.Size(80, 30)
+$buttonReboot.Text = "Reboot"
+$buttonReboot.BackColor = [System.Drawing.Color]::IndianRed  # Set reboot button color to red
+$buttonReboot.ForeColor = [System.Drawing.Color]::White  # Set text color to white
+$buttonReboot.Add_Click({
+    Write-Host "User clicked Reboot. Prompting Confirmation..."
+
+    # Create a new confirmation form
+    $confirmForm = New-Object System.Windows.Forms.Form
+    $confirmForm.Text = "Confirm Reboot"
+    $confirmForm.Size = New-Object System.Drawing.Size(300, 150)
+
+    # Confirmation message
+    $confirmLabel = New-Object System.Windows.Forms.Label
+    $confirmLabel.Location = New-Object System.Drawing.Point(10, 10)
+    $confirmLabel.Size = New-Object System.Drawing.Size(280, 40)
+    $confirmLabel.Text = "Are you sure you are ready to Restart? Click Yes to proceed, click No to cancel."
+    $confirmForm.Controls.Add($confirmLabel)
+
+    # Yes button
+    $yesButton = New-Object System.Windows.Forms.Button
+    $yesButton.Location = New-Object System.Drawing.Point(50, 60)
+    $yesButton.Size = New-Object System.Drawing.Size(75, 30)
+    $yesButton.Text = "Yes"
+    $yesButton.Add_Click({
+        Restart-Computer -Force
+        $confirmForm.Close()
+    })
+    $confirmForm.Controls.Add($yesButton)
+
+    # No button
+     $noButton = New-Object System.Windows.Forms.Button
+    $noButton.Location = New-Object System.Drawing.Point(150, 60)
+    $noButton.Size = New-Object System.Drawing.Size(75, 30)
+    $noButton.Text = "No"
+    $noButton.Add_Click({
+        $confirmForm.Close()
+        $form.Close() # This line will close the main form
+    })
+    $confirmForm.Controls.Add($noButton)
+
+    # Show the confirmation form
+    $confirmForm.ShowDialog()
+})
+
+# Add controls to the form
+$form.Controls.Add($label)
+$form.Controls.Add($buttonCancel)
+$form.Controls.Add($buttonReboot)
+
+# Show the form
+$result = $form.ShowDialog()
+
+# Dispose of the form when done
+$form.Dispose()
